@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -29,22 +32,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-int crc32(String password) {
-  int crc = 0xFFFFFFFF;
-  for (int i = 0; i < password.length; i++) {
-    int byte = password.codeUnitAt(i);
-    for (int j = 0; j < 8; j++) {
-      bool bit = (byte & 1) == 1;
-      bool cbit = (crc & 1) == 1;
-      crc = crc >> 1;
-      if (cbit != bit) {
-        crc = crc ^ 0xEDB88320;
-      }
-      byte = byte >> 1;
-    }
-  }
-  return ~crc;
-}
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -76,19 +64,31 @@ class _LoginPageState extends State<LoginPage> {
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
-      String passwordHash = crc32(_password).toString();
-      String url = 'https://www.insti.com/login.php?user=$_username&pass=$passwordHash';
-      http.Response response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        _saveUsername(_username);
-        setState(() {
-          _message = 'Usuario autentificado';
-        });
-      } else {
-        setState(() {
-          _message = 'Usuario no encontrado o contraseña no válida';
-        });
-      }
+
+     // _username = "usuario1";
+      //_password = "clave1";
+
+      String passwordHash = sha256.convert(utf8.encode(_password)).toString();
+
+
+      String apiUrl = 'http://192.168.1.227/login.php';
+      Map<String, String> body = {
+        "usuario": _username,
+        "clave": passwordHash,
+      };
+
+      http.post(Uri.parse(apiUrl), body: body).then((http.Response response) {
+        if (response.statusCode == 200) {
+          _saveUsername(_username);
+          setState(() {
+            _message = 'Usuario autentificado';
+          });
+        } else {
+          setState(() {
+            _message = 'Usuario no encontrado o contraseña no válida. Error: ' + response.statusCode.toString();
+          });
+        }
+      });
     }
   }
 
