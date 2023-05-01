@@ -1,11 +1,11 @@
-class Iva{
+class TipoIva{
   final int id;
   final DateTime? created;
   final DateTime? modified;
   final int tipo;
   final bool activo;
 
-  Iva({
+  TipoIva({
     required this.id,
     this.created,
     this.modified,
@@ -13,8 +13,8 @@ class Iva{
     required this.activo,
   });
 
-  factory Iva.fromJson(Map<String, dynamic> json) {
-    return Iva(
+  factory TipoIva.fromJson(Map<String, dynamic> json) {
+    return TipoIva(
       id: json['id'],
       created: json['created'] != null ? DateTime.parse(json['created']) : null,
       modified: json['modified'] != null ? DateTime.parse(json['modified']) : null,

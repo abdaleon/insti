@@ -3,40 +3,40 @@ class Proveedor {
   final DateTime? created;
   final DateTime? modified;
   final String nombre;
-  final String direccion;
-  final String ciudad;
-  final String telefono;
-  final String email;
-  final String nif;
-  final int provinciaId;
+  final String? direccion;
+  final String? ciudad;
+  final String? telefono;
+  final String? email;
+  final String? nif;
+  final int? provinciaId;
   final String? codigoPostal;
-  final String sector;
-  final String paisIso;
-  final String fax;
-  final String web;
-  final String iban;
-  final bool activo;
-  final bool homologado;
+  final String? sector;
+  final String? paisIso;
+  final String? fax;
+  final String? web;
+  final String? iban;
+  final bool? activo;
+  final bool? homologado;
 
   Proveedor({
     required this.id,
     this.created,
     this.modified,
     required this.nombre,
-    required this.direccion,
-    required this.ciudad,
-    required this.telefono,
-    required this.email,
-    required this.nif,
-    required this.provinciaId,
+    this.direccion,
+    this.ciudad,
+    this.telefono,
+    this.email,
+    this.nif,
+    this.provinciaId,
     this.codigoPostal,
-    required this.sector,
-    required this.paisIso,
-    required this.fax,
-    required this.web,
-    required this.iban,
-    required this.activo,
-    required this.homologado,
+    this.sector,
+    this.paisIso,
+    this.fax,
+    this.web,
+    this.iban,
+    this.activo,
+    this.homologado,
   });
 
   factory Proveedor.fromJson(Map<String, dynamic> json) {

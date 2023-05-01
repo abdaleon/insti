@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
+import 'package:insti/classes/cache.dart';
 import 'package:insti/webconn.dart';
+import 'classes/usuario.dart';
+import 'package:insti/utils.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -40,7 +41,20 @@ class _LoginPageState extends State<Login> {
       _username = "secretariopruebas@test.com";
       _password = "1";
 
-      WebConn().login(_username, _password);
+      String token = "";
+      Usuario? usuario = null;
+      WebConn().login(_username, _password)
+        .then((value){
+          token = value.token;
+          usuario = value.usuario;
+      })
+        .whenComplete((){
+          if ((token.length > 0) && (usuario != null)){
+            Cache().tokenWeb = token;
+            Cache().usuarioActivo = usuario;
+
+          }
+      });
 
     }
   }
@@ -105,7 +119,7 @@ class _LoginPageState extends State<Login> {
                     Text("   "),
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        SystemNavigator.pop();
                       },
                       child: Text('Cerrar'),
                     ),
