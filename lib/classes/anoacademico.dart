@@ -8,24 +8,24 @@ class AnoAcademico {
   AnoAcademico({
     required this.id,
     required this.ano,
-    required this.created,
-    required this.modified,
+    this.created,
+    this.modified,
     required this.activo,
   });
 
   factory AnoAcademico.fromJson(Map<String, dynamic> json) {
     return AnoAcademico(
-        id: json['id'],
-        ano: json['nombre'],
-        created: DateTime.parse(json['created']),
-        modified: DateTime.parse(json['modified']),
-        activo: json['activo'],
+      id: json['id'],
+      ano: json['ano'],
+      created: json['created'] != null ? DateTime.parse(json['created']) : null,
+      modified: json['modified'] != null ? DateTime.parse(json['modified']) : null,
+      activo: json['activo'],
     );
   }
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'nombre': ano,
+    'ano': ano,
     'created': created?.toIso8601String(),
     'modified': modified?.toIso8601String(),
     'activo': activo,

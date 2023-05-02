@@ -3,11 +3,11 @@ class FamiliaProfesional {
   String codigo;
   String nombre;
   bool activo;
-  String created;
-  String modified;
-  int jefedepartamento_id;
-  int jefecomprasdepartamento_id;
-  double presupuesto;
+  DateTime? created;
+  DateTime? modified;
+  int? jefedepartamento_id;
+  int? jefecomprasdepartamento_id;
+  double? presupuesto;
   bool es_departamento;
 
   FamiliaProfesional({
@@ -15,11 +15,11 @@ class FamiliaProfesional {
     required this.codigo,
     required this.nombre,
     required this.activo,
-    required this.created,
-    required this.modified,
-    required this.jefedepartamento_id,
-    required this.jefecomprasdepartamento_id,
-    required this.presupuesto,
+    this.created,
+    this.modified,
+    this.jefedepartamento_id,
+    this.jefecomprasdepartamento_id,
+    this.presupuesto,
     required this.es_departamento,
   });
 
@@ -29,8 +29,8 @@ class FamiliaProfesional {
       codigo: json['codigo'],
       nombre: json['nombre'],
       activo: json['activo'],
-      created: json['created'],
-      modified: json['modified'],
+      created: json['created'] != null ? DateTime.parse(json['created']) : null,
+      modified: json['modified'] != null ? DateTime.parse(json['modified']) : null,
       jefedepartamento_id: json['jefedepartamento_id'],
       jefecomprasdepartamento_id: json['jefecomprasdepartamento_id'],
       presupuesto: json['presupuesto'],

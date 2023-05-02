@@ -1,8 +1,8 @@
 class GrupoProyecto {
   int id;
   String nombre;
-  String descripcion;
-  bool activo;
+  String? descripcion;
+  bool? activo;
   DateTime? created;
   DateTime? modified;
   double? presupuesto;
@@ -10,10 +10,10 @@ class GrupoProyecto {
   GrupoProyecto({
     required this.id,
     required this.nombre,
-    required this.descripcion,
-    required this.activo,
-    required this.created,
-    required this.modified,
+    this.descripcion,
+    this.activo,
+    this.created,
+    this.modified,
     this.presupuesto,
   });
 

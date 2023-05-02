@@ -1,3 +1,5 @@
+import 'package:insti/classes/familiaprofesional.dart';
+
 import 'cargo.dart';
 
 class Usuario {
@@ -20,7 +22,7 @@ class Usuario {
   bool notificacionesEmail;
   bool notificacionesPush;
   List<Cargo> cargos;
-  List<dynamic> membresias;
+  List<FamiliaProfesional> membresias;
 
   Usuario({
     required this.id,
@@ -52,6 +54,12 @@ class Usuario {
         cargos.add(Cargo.fromJson(cargo));
       });
     }
+    List<FamiliaProfesional> membresias = [];
+    if (json['membresias'] != null) {
+      json['membresias'].forEach((cargo) {
+        membresias.add(FamiliaProfesional.fromJson(cargo));
+      });
+    }
 
     return Usuario(
       id: json['id'],
@@ -73,7 +81,7 @@ class Usuario {
       notificacionesEmail: json['notificaciones_email'],
       notificacionesPush: json['notificaciones_push'],
       cargos: cargos,
-      membresias: json['membresias'],
+      membresias: membresias,
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:insti/classes/cache.dart';
 import 'package:insti/webconn.dart';
-import 'classes/usuario.dart';
+import '../classes/usuario.dart';
 import 'package:insti/utils.dart';
 
 class Login extends StatefulWidget {
@@ -53,6 +53,16 @@ class _LoginPageState extends State<Login> {
             Cache().tokenWeb = token;
             Cache().usuarioActivo = usuario;
 
+            bool result = false;
+            WebConn().cargarCache(context)
+            .then((value){
+              result = value;
+            })
+            .whenComplete((){
+              if (result){
+                showMessageDialog(context, "Caché cargada correctamente.");
+              }
+            });
           }
       });
 
