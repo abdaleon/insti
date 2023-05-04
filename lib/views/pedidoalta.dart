@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:insti/classes/cache.dart';
 import 'package:insti/classes/familiaprofesional.dart';
 import 'package:insti/classes/grupoproyecto.dart';
+import 'package:insti/classes/lineapedidoalta.dart';
 import 'package:insti/utils.dart';
 import 'package:insti/views/lineapedido.dart';
+import 'package:insti/webconn.dart';
 
 class PedidoAlta extends StatefulWidget {
   const PedidoAlta({Key? key}) : super(key: key);
@@ -253,7 +255,7 @@ class _PedidoAltaState extends State<PedidoAlta> {
                                 _isSimplified = value;
                                 lineasPedidoWidgets.forEach((element) {
                                   setState(() {
-                                    element.simplificado = _isSimplified;
+                                    element.updateSimplificado(_isSimplified);
                                   });
                                 });
                               });
@@ -340,6 +342,29 @@ class _PedidoAltaState extends State<PedidoAlta> {
           FloatingActionButton.extended(
             heroTag: 'registrar',
             onPressed: () {
+
+              /*
+      String destino,
+      String proveedor_id,
+      String fecha_pedido,
+      bool simplificado,
+      String observaciones,
+      List<LineaPedidoAlta> lineas,
+              * */
+
+              List<LineaPedidoAlta> l = List<LineaPedidoAlta>.empty(growable: true);
+              lineasPedidoWidgets.forEach((element) {
+                l.add(element.getLineaPedidoAlta());
+              });
+
+              WebConn().crearPedido(
+                 _selectedValueDept!,
+                _selectedValueProveedor!.toString(),
+                _selectedDate,
+                _isSimplified,
+                "", // VOLVER
+                l
+              );
               showMessageDialog(context, _selectedDate);
             },
             label: Text('Registrar'),

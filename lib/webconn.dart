@@ -4,6 +4,7 @@ import 'package:insti/classes/anoacademico.dart';
 import 'package:insti/classes/cache.dart';
 import 'package:insti/classes/familiaprofesional.dart';
 import 'package:insti/classes/grupoproyecto.dart';
+import 'package:insti/classes/lineapedido.dart';
 import 'package:insti/classes/tipoiva.dart';
 
 import 'classes/config.dart';
@@ -163,19 +164,26 @@ class WebConn{
   }
 
 
-  void crearPedido() async {
+  void crearPedido(
+      String destino,
+      String proveedor_id,
+      String fecha_pedido,
+      bool simplificado,
+      String observaciones,
+      List<LineaPedidoAlta> lineasPedidos,
+      ) async {
     var url = Uri.parse(Config.getServerURL() + '/pedidos/crear');
     
      Map<String, String> headers = {
       'Authorization': 'Bearer ' + Cache().tokenWeb,
-       'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryXeu8ExMoHXtxyoRc'
+       // 'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryXeu8ExMoHXtxyoRc'
      };
 
     // Enviamos los datos con una petición POST
     var request = http.MultipartRequest('POST', url);
     request.headers.addAll(headers);
 
-    // request.fields['destino'] = 'GruposProyectos_2';
+  /*  // request.fields['destino'] = 'GruposProyectos_2';
     request.fields['destino'] = 'FamiliasProfesionales_34';
     request.fields['familia_profesional_id'] = '34';
     request.fields['grupo_proyecto_id'] = 'null';
@@ -184,9 +192,25 @@ class WebConn{
     request.fields['usuario_id'] = '';
     request.fields['simplificado'] = 'false';
     request.fields['observaciones'] = '';
+    */
+
+    request.fields['destino'] = destino;
+    if (destino.contains('GruposProyectos')){
+      request.fields['familia_profesional_id'] = 'null';
+      request.fields['grupo_proyecto_id'] = destino.substring(destino.indexOf('_')+1);
+    }
+    else{
+      request.fields['familia_profesional_id'] = destino.substring(destino.indexOf('_')+1);;
+      request.fields['grupo_proyecto_id'] = 'null';
+    }
+    request.fields['proveedor_id'] = proveedor_id;
+    request.fields['fecha_pedido'] = fecha_pedido;
+    request.fields['usuario_id'] = '';
+    request.fields['simplificado'] = simplificado.toString();
+    request.fields['observaciones'] = observaciones;
 
     // Líneas del pedido
-    final lineasPedidos = <LineaPedidoAlta>[
+/*    lineasPedidos = <LineaPedidoAlta>[
       LineaPedidoAlta(
         descripcion: 'primera app ' + DateTime.now().toString(),
         unidadesSolicitadas: 1,
@@ -200,7 +224,8 @@ class WebConn{
         tipoIva: 21,
       ),
     ];
-
+  */
+    
     for (var i = 0; i < lineasPedidos.length; i++) {
       final linea = lineasPedidos[i];
       final mapaLinea = linea.toMap();

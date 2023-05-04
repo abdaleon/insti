@@ -4,8 +4,8 @@ class LineaPedido {
   final int? lineaFacturaId;
   final int? articuloId;
   final String descripcion;
-  final int unidadesSolicitadas;
-  final int? unidadesServidas;
+  final double unidadesSolicitadas;
+  final double? unidadesServidas;
   final double importeEstimado;
   final DateTime? created;
   final DateTime? modified;

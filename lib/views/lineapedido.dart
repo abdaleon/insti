@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:insti/classes/cache.dart';
+import 'package:insti/classes/lineapedido.dart';
+import 'package:insti/classes/lineapedidoalta.dart';
 
 class LineaPedidoWidget extends StatefulWidget {
 
@@ -7,21 +9,53 @@ class LineaPedidoWidget extends StatefulWidget {
   TextEditingController quantityController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController totalController = TextEditingController();
+  int? selectedIva;
+
 
   bool simplificado;
 
+  void updateSimplificado(bool s){
+    st.setState(() {
+      simplificado = s;
+      st.simplificado = s;
+    });
+  }
+
   LineaPedidoWidget({required this.simplificado});
 
+  late _LineaPedidoWidgetState st;
 
+  LineaPedido getLineaPedido(){
+    return LineaPedido(
+        id: 0,
+        pedidoId: 0,
+        descripcion: descriptionController.text.toString(),
+        unidadesSolicitadas: double.tryParse(quantityController.text) ?? 0.0,
+        importeEstimado: double.tryParse(amountController.text) ?? 0.0,
+        tipoIva: selectedIva!,
+        esValorReal: true);  // VOLVER, NO SÉ QUE PONER
+
+  }
+
+  LineaPedidoAlta getLineaPedidoAlta(){
+    return LineaPedidoAlta(
+      descripcion: descriptionController.text.toString(),
+      unidadesSolicitadas: int.tryParse(quantityController.text) ?? 0,
+      importeEstimado: double.tryParse(amountController.text) ?? 0.0,
+      tipoIva:  selectedIva!,
+    ) ;
+  }
 
   @override
-  _LineaPedidoWidgetState createState() => _LineaPedidoWidgetState(simplificado: simplificado);
+  _LineaPedidoWidgetState createState() {
+    st = _LineaPedidoWidgetState(simplificado: simplificado);
+    return st;
+  }
 }
 
 class _LineaPedidoWidgetState extends State<LineaPedidoWidget> {
 
 
-  int? _selectedIva;
 
   bool simplificado;
 
@@ -36,8 +70,11 @@ class _LineaPedidoWidgetState extends State<LineaPedidoWidget> {
     double quantity = double.tryParse(widget.quantityController.text) ?? 0.0;
     double amount = double.tryParse(widget.amountController.text) ?? 0.0;
     double total = 0.0;
-    if (_selectedIva != null){
-      total = quantity * amount * ( (1.0 +(_selectedIva! / 100.0)));
+    if (widget.selectedIva != null){
+      if (simplificado){
+        quantity = 1.0;
+      }
+      total = quantity * amount * ( (1.0 +(widget.selectedIva! / 100.0)));
     }
     setState(() {
       widget.totalController.text = total.toStringAsFixed(2);
@@ -92,7 +129,10 @@ class _LineaPedidoWidgetState extends State<LineaPedidoWidget> {
                       child: Text("Cantidad", style: TextStyle(fontWeight: FontWeight.bold),)
                   ),
                 ),
-                SizedBox(width: 8.0),
+                Visibility(
+                  visible: !widget.simplificado,
+                  child: SizedBox(width: 8.0),
+                ),
                 Expanded(
                     child: Text("Importe", style: TextStyle(fontWeight: FontWeight.bold),)
                 ),
@@ -130,7 +170,10 @@ class _LineaPedidoWidgetState extends State<LineaPedidoWidget> {
                       ),
                     ),
                 ),
-                SizedBox(width: 8.0),
+                Visibility(
+                  visible: !widget.simplificado,
+                  child: SizedBox(width: 8.0),
+                ),
                 Expanded(
                   child:
                   Container(
@@ -156,9 +199,9 @@ class _LineaPedidoWidgetState extends State<LineaPedidoWidget> {
                       height: 0,
                       color: Colors.transparent,
                     ),
-                    hint: Text("IVA"),
-                    value: _selectedIva,
-                    disabledHint: Text("IVA"),
+                    // hint: Text("IVA"),
+                    value: widget.selectedIva,
+                    // disabledHint: Text("IVA"),
                     items: Cache().tiposIva
                         .map((tiposIva) => DropdownMenuItem(
                       value: tiposIva.tipo,
@@ -167,7 +210,7 @@ class _LineaPedidoWidgetState extends State<LineaPedidoWidget> {
                         .toList(),
                     onChanged: (value) {
                       setState(() {
-                        _selectedIva = value;
+                        widget.selectedIva = value;
                       });
                       _calculateTotal();
                     },

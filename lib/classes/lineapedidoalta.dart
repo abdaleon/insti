@@ -1,7 +1,7 @@
 class LineaPedidoAlta {
   String descripcion;
   int unidadesSolicitadas;
-  int importeEstimado;
+  double importeEstimado;
   int tipoIva;
 
   LineaPedidoAlta({
