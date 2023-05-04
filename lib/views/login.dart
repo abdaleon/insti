@@ -6,6 +6,8 @@ import 'package:insti/webconn.dart';
 import '../classes/usuario.dart';
 import 'package:insti/utils.dart';
 
+import 'pedidoalta.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -14,9 +16,11 @@ class Login extends StatefulWidget {
 class _LoginPageState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   final _storage = FlutterSecureStorage();
+  final _usernameController = TextEditingController();
   String _username = '';
   String _password = '';
   String _message = '';
+  bool entrando = false;
 
   @override
   void initState() {
@@ -28,6 +32,7 @@ class _LoginPageState extends State<Login> {
     String username = await _storage.read(key: 'username') ?? "";
     setState(() {
       _username = username;
+      _usernameController.text = username;
     });
   }
 
@@ -38,11 +43,15 @@ class _LoginPageState extends State<Login> {
   void _login() async {
     if (_formKey.currentState!.validate()) {
 
-      _username = "secretariopruebas@test.com";
-      _password = "1";
+      // DEPURACION
+      // _username = "secretariopruebas@test.com";
+      // _password = "1";
 
       String token = "";
       Usuario? usuario = null;
+      setState(() {
+        entrando = true;
+      });
       WebConn().login(_username, _password)
         .then((value){
           token = value.token;
@@ -52,6 +61,7 @@ class _LoginPageState extends State<Login> {
           if ((token.length > 0) && (usuario != null)){
             Cache().tokenWeb = token;
             Cache().usuarioActivo = usuario;
+            _saveUsername(_username);
 
             bool result = false;
             WebConn().cargarCache(context)
@@ -59,9 +69,24 @@ class _LoginPageState extends State<Login> {
               result = value;
             })
             .whenComplete((){
+              setState(() {
+                entrando = false;
+              });
               if (result){
-                showMessageDialog(context, "Caché cargada correctamente.");
+
+                // showMessageDialog(context, "Caché cargada correctamente.");
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => PedidoAlta()),
+                );
+                // WebConn().crearPedido();
               }
+            })
+            .onError((error, stackTrace){
+              showMessageDialog(context, "Se ha producido el error: " + error.toString());
+              setState(() {
+                entrando = false;
+              });
             });
           }
       });
@@ -71,20 +96,23 @@ class _LoginPageState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    _loadUsername();
+    
     return Scaffold(
       appBar: AppBar(
         title: Center(child:Text('Infocentros')),
       ),
-      body: SingleChildScrollView(
+      body:SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.only(right: 16.0, left: 16.0, top: 36.0),
             child: Column(
               children: [
                 Text("Aplicación para gestión de instituciones educativas por 2ksystems", textAlign: TextAlign.center, style: TextStyle(fontSize: 16.0)),
-                SizedBox(height: 16.0),
+                SizedBox(height: 32.0),
                 TextFormField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     labelText: 'Usuario',
                     border: OutlineInputBorder(),
@@ -96,9 +124,10 @@ class _LoginPageState extends State<Login> {
                     return null;
                   },
                   onChanged: (value) {
-                    _username = value;
+                    setState(() {
+                      _username = value;
+                    });
                   },
-                  initialValue: _username,
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
@@ -117,24 +146,34 @@ class _LoginPageState extends State<Login> {
                   },
                   obscureText: true,
                 ),
-                SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _login,
-                      child: Text('Entrar'),
+                SizedBox(height: 32.0),
+                Visibility(
+                  visible: !entrando,
+                    child:
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _login,
+                          child: Text('Entrar'),
+                        ),
+                        Text("   "),
+                        ElevatedButton(
+                          onPressed: () {
+                            SystemNavigator.pop();
+                          },
+                          child: Text('Cerrar'),
+                        ),
+
+                      ],
                     ),
-                    Text("   "),
-                    ElevatedButton(
-                      onPressed: () {
-                        SystemNavigator.pop();
-                      },
-                      child: Text('Cerrar'),
-                    ),
-                  ],
                 ),
+                Visibility(
+                  visible: entrando,
+                  child: CircularProgressIndicator(),
+                ),
+
                 SizedBox(height: 16.0),
                 Text(_message),
               ],

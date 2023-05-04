@@ -7,6 +7,7 @@ import 'package:insti/classes/grupoproyecto.dart';
 import 'package:insti/classes/tipoiva.dart';
 
 import 'classes/config.dart';
+import 'classes/lineapedidoalta.dart';
 import 'classes/loginresponse.dart';
 import 'package:http/http.dart' as http;
 
@@ -41,35 +42,35 @@ class WebConn{
   Future<bool> cargarCache(BuildContext context) async{
     bool result = true;
 
-    WebConn().obtenerProveedores().then((datos) {
+    await WebConn().obtenerProveedores().then((datos) {
       Cache().proveedores = datos;
     }).catchError((error) {
       result = false;
       showMessageDialog(context, 'No se pudo cargar la lista de proveedores. Error: ' + error.toString());
     });
 
-    WebConn().obtenerFamiliasProfesionales().then((datos) {
+    await WebConn().obtenerFamiliasProfesionales().then((datos) {
       Cache().familiasProfesionales = datos;
     }).catchError((error) {
       result = false;
       showMessageDialog(context, 'No se pudo cargar la lista de familias profesionales. Error: ' + error.toString());
     });
 
-    WebConn().obtenerGruposDeProyecto().then((datos) {
+    await WebConn().obtenerGruposDeProyecto().then((datos) {
       Cache().gruposProyecto = datos;
     }).catchError((error) {
       result = false;
       showMessageDialog(context, 'No se pudo cargar la lista de grupos de proyectos. Error: ' + error.toString());
     });
 
-    WebConn().obtenerTiposIva().then((datos) {
+    await WebConn().obtenerTiposIva().then((datos) {
       Cache().tiposIva = datos;
     }).catchError((error) {
       result = false;
       showMessageDialog(context, 'No se pudo cargar la lista de tipos de IVA. Error: ' + error.toString());
     });
 
-    WebConn().obtenerAnoAcademicoActual().then((datos) {
+    await WebConn().obtenerAnoAcademicoActual().then((datos) {
       Cache().anoAcademico = datos;
     }).catchError((error) {
       result = false;
@@ -161,5 +162,64 @@ class WebConn{
     }
   }
 
+
+  void crearPedido() async {
+    var url = Uri.parse(Config.getServerURL() + '/pedidos/crear');
+    
+     Map<String, String> headers = {
+      'Authorization': 'Bearer ' + Cache().tokenWeb,
+       'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryXeu8ExMoHXtxyoRc'
+     };
+
+    // Enviamos los datos con una petición POST
+    var request = http.MultipartRequest('POST', url);
+    request.headers.addAll(headers);
+
+    // request.fields['destino'] = 'GruposProyectos_2';
+    request.fields['destino'] = 'FamiliasProfesionales_34';
+    request.fields['familia_profesional_id'] = '34';
+    request.fields['grupo_proyecto_id'] = 'null';
+    request.fields['proveedor_id'] = '1024';
+    request.fields['fecha_pedido'] = '2023-05-02';
+    request.fields['usuario_id'] = '';
+    request.fields['simplificado'] = 'false';
+    request.fields['observaciones'] = '';
+
+    // Líneas del pedido
+    final lineasPedidos = <LineaPedidoAlta>[
+      LineaPedidoAlta(
+        descripcion: 'primera app ' + DateTime.now().toString(),
+        unidadesSolicitadas: 1,
+        importeEstimado: 4,
+        tipoIva: 21,
+      ),
+      LineaPedidoAlta(
+        descripcion: 'segunda app ' + DateTime.now().toString(),
+        unidadesSolicitadas: 2,
+        importeEstimado: 6,
+        tipoIva: 21,
+      ),
+    ];
+
+    for (var i = 0; i < lineasPedidos.length; i++) {
+      final linea = lineasPedidos[i];
+      final mapaLinea = linea.toMap();
+      mapaLinea.keys.forEach((key) {
+        final value = mapaLinea[key];
+        final valueStr = value.toString();
+        final fieldKey = 'lineas_pedidos[$i][$key]';
+        request.fields[fieldKey] = valueStr;
+      });
+    }
+
+    var respuesta = await request.send();
+
+    // Si la respuesta es exitosa, mostramos el mensaje
+    if (respuesta.statusCode == 200) {
+      print('Datos enviados correctamente');
+    } else {
+      print('Error al enviar los datos: ${respuesta.statusCode}');
+    }
+  }
 
 }

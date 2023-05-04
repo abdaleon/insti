@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:insti/mycolors.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'login.dart';
 
@@ -19,6 +20,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: MyColors.buildMaterialColor(),
       ),
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],      supportedLocales: [
+        const Locale('es', 'ES'), // Español
+      ],
       home: Login(),
     );
   }
