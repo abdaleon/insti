@@ -18,7 +18,7 @@ class Usuario {
   bool isDirectivo;
   String additionalData;
   DateTime? lastLogin;
-  String phone;
+  String? phone;
   bool notificacionesEmail;
   bool notificacionesPush;
   List<Cargo> cargos;
@@ -40,7 +40,7 @@ class Usuario {
     required this.isDirectivo,
     required this.additionalData,
     required this.lastLogin,
-    required this.phone,
+    this.phone,
     required this.notificacionesEmail,
     required this.notificacionesPush,
     required this.cargos,

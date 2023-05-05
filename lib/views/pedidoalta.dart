@@ -364,8 +364,13 @@ class _PedidoAltaState extends State<PedidoAlta> {
                 _isSimplified,
                 "", // VOLVER
                 l
-              );
-              showMessageDialog(context, _selectedDate);
+              )
+              .then((value){
+                if (value){
+                  Navigator.pop(context, true);
+                }
+              });
+
             },
             label: Text('Registrar'),
           ),

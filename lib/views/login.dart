@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:insti/classes/cache.dart';
+import 'package:insti/views/listapedidos.dart';
 import 'package:insti/webconn.dart';
 import '../classes/usuario.dart';
 import 'package:insti/utils.dart';
@@ -77,7 +78,7 @@ class _LoginPageState extends State<Login> {
                 // showMessageDialog(context, "Caché cargada correctamente.");
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => PedidoAlta()),
+                  MaterialPageRoute(builder: (context) => ListaPedidos()),
                 );
                 // WebConn().crearPedido();
               }
@@ -96,8 +97,7 @@ class _LoginPageState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    _loadUsername();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Center(child:Text('Infocentros')),

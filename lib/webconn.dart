@@ -5,6 +5,7 @@ import 'package:insti/classes/cache.dart';
 import 'package:insti/classes/familiaprofesional.dart';
 import 'package:insti/classes/grupoproyecto.dart';
 import 'package:insti/classes/lineapedido.dart';
+import 'package:insti/classes/pedido.dart';
 import 'package:insti/classes/tipoiva.dart';
 
 import 'classes/config.dart';
@@ -151,6 +152,24 @@ class WebConn{
     }
   }
 
+  // PEDIDOS
+  Future<List<Pedido>> obtenerPedidos() async {
+    final response = await http.get(Uri.parse(Config.getServerURL() + '/pedidos?q_ano_actual=true'), headers: getHeaders());
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsonList = jsonDecode(response.body)['pedidos'];
+      List<Pedido> pedidos = List<Pedido>.empty(growable: true);
+      for (var json in jsonList) {
+        Pedido pedido = Pedido.fromJson(json);
+        pedidos.add(pedido);
+      }
+      return pedidos;
+    } else {
+      throw Exception('El servidor responde con resultado ' + response.statusCode.toString());
+    }
+  }
+
+
   // AÑO ACADÉMICO
   Future<AnoAcademico> obtenerAnoAcademicoActual() async {
     final response = await http.get(Uri.parse(Config.getServerURL() + '/ano-academico-actual'), headers: getHeaders());
@@ -164,7 +183,7 @@ class WebConn{
   }
 
 
-  void crearPedido(
+  Future<bool> crearPedido(
       String destino,
       String proveedor_id,
       String fecha_pedido,
@@ -179,20 +198,8 @@ class WebConn{
        // 'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundaryXeu8ExMoHXtxyoRc'
      };
 
-    // Enviamos los datos con una petición POST
     var request = http.MultipartRequest('POST', url);
     request.headers.addAll(headers);
-
-  /*  // request.fields['destino'] = 'GruposProyectos_2';
-    request.fields['destino'] = 'FamiliasProfesionales_34';
-    request.fields['familia_profesional_id'] = '34';
-    request.fields['grupo_proyecto_id'] = 'null';
-    request.fields['proveedor_id'] = '1024';
-    request.fields['fecha_pedido'] = '2023-05-02';
-    request.fields['usuario_id'] = '';
-    request.fields['simplificado'] = 'false';
-    request.fields['observaciones'] = '';
-    */
 
     request.fields['destino'] = destino;
     if (destino.contains('GruposProyectos')){
@@ -208,26 +215,12 @@ class WebConn{
     request.fields['usuario_id'] = '';
     request.fields['simplificado'] = simplificado.toString();
     request.fields['observaciones'] = observaciones;
-
-    // Líneas del pedido
-/*    lineasPedidos = <LineaPedidoAlta>[
-      LineaPedidoAlta(
-        descripcion: 'primera app ' + DateTime.now().toString(),
-        unidadesSolicitadas: 1,
-        importeEstimado: 4,
-        tipoIva: 21,
-      ),
-      LineaPedidoAlta(
-        descripcion: 'segunda app ' + DateTime.now().toString(),
-        unidadesSolicitadas: 2,
-        importeEstimado: 6,
-        tipoIva: 21,
-      ),
-    ];
-  */
     
     for (var i = 0; i < lineasPedidos.length; i++) {
       final linea = lineasPedidos[i];
+      if (simplificado){
+        linea.unidadesSolicitadas = 1;
+      }
       final mapaLinea = linea.toMap();
       mapaLinea.keys.forEach((key) {
         final value = mapaLinea[key];
@@ -241,9 +234,10 @@ class WebConn{
 
     // Si la respuesta es exitosa, mostramos el mensaje
     if (respuesta.statusCode == 200) {
-      print('Datos enviados correctamente');
+      return Future.value(true);
     } else {
       print('Error al enviar los datos: ${respuesta.statusCode}');
+      return Future.value(false);
     }
   }
 
